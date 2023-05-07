@@ -7,11 +7,10 @@ import datetime
 import argparse
 
 
-def real_time_detect(idx) : 
-    i = 0
-    cap = cv2.VideoCapture(2)
+def real_time_detect(path, race_id, ckpt_id) : 
+    cap = cv2.VideoCapture(0)
     while True : 
-        with open(f"ckpt_{idx}.json") as f:
+        with open(path) as f:
             data = json.load(f)
             ok, img = cap.read()
             if not ok :
@@ -29,26 +28,26 @@ def real_time_detect(idx) :
                 pts = np.array([code.polygon],np.int32)
                 cv2.polylines(img,[pts],isClosed = True,color = (0,0,255),thickness = 4)# BGR
                 cv2.putText(img,qr_data,(rect[0],rect[1]),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0))
-            i+=1;
-            print(i)
-            if i%20==0:
-                cv2.imwrite(f"backup/image_{i}.jpg", img)
     
-        with open(f"ckpt_{idx}.json", "w") as f:
+        with open(path, "w") as f:
             json.dump(data, f)
         cv2.imshow('preview',img)
         cv2.waitKey(1)
 
     cap.release()
 
+def init_ckpt_data(race_id, ckpt_id):
+    data = {'race_id' : race_id , 'ckpt_id' : ckpt_id,'ids' : {}}
+    return data
 
 if __name__ == '__main__' :
     parser = argparse.ArgumentParser()
     parser.add_argument('--race_id', type=str, default=0)
-    parser.add_argument('--ckpt_id', type=str, default=1)
+    parser.add_argument('--ckpt_id', type=str, default=0)
     args = parser.parse_args()
-    data = {'race_id' : args.race_id , 'ckpt_id' : args.ckpt_id,'ids' : {}}
-    with open(f"ckpt_{args.ckpt_id}.json", "w") as f:
+    data = init_ckpt_data(args.race_id, args.ckpt_id)
+    path = f"races_info/race_{args.race_id}/ckpt_{args.ckpt_id}.json"
+    with open(f"races_info/race_{args.race_id}/ckpt_{args.ckpt_id}.json", "w") as f:
         json.dump(data, f)
-    real_time_detect(args.ckpt_id)
+    real_time_detect(path, args.race_id, args.ckpt_id)
     print(data)

@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 import json
 from utils import *
 
@@ -66,23 +67,25 @@ if state=="create":
 #######################################################################
 
 if state=="view":
-    #use tabs
     races = data["races"]
-    tabs = st.tabs([race["name"] for race in races])
+    if len(races)!=0:
+        tabs = st.tabs([race["name"] for race in races])
 
-    for i, tab in enumerate(tabs):
-        with tab:
-            st.write(races[i])
+        for i, tab in enumerate(tabs):
+            with tab:
+                st.write(races[i])
 
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.button("Leaderboard", on_click=click_func, args=[f"leaderboard_{i}"], key=str(i)+"leaderboard")
-            with col2:
-                st.button("Add runner", on_click=click_func, args=[f"runner_{i}"], key=str(i)+"add")
-            with col3:
-                st.button("View runners", on_click=click_func, args=[f"runners_{i}"], key=str(i)+"view")
-            with col4:
-                st.button("Delete race", on_click=delete_race, args=[i], key=str(i)+"delete")
+                col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    st.button("Leaderboard", on_click=click_func, args=[f"leaderboard_{i}"], key=str(i)+"leaderboard")
+                with col2:
+                    st.button("Add runner", on_click=click_func, args=[f"runner_{i}"], key=str(i)+"add")
+                with col3:
+                    st.button("View runners", on_click=click_func, args=[f"runners_{i}"], key=str(i)+"view")
+                with col4:
+                    st.button("Delete race", on_click=delete_race, args=[i], key=str(i)+"delete")
+    else:
+        st.info("No races has been created yet!")
 
     col1, col2  = st.columns(2)
     with col1:
@@ -135,8 +138,19 @@ if state.startswith("leaderboard_"):
     race = data["races"][raceid]
     runners = race["runners"]
 
+    #update runners' data
+    update_data(race)
+
     #create the data frame
-    df = get_data_frame(runners)
+    df = get_data_frame(race)
+    dt = get_time(race)
+
+
+    st.header(dt)
+    st.write(df)
 
     st.button("Back to viewing races", on_click=click_func, args=["view"])
+
+    time.sleep(1)
+    st.experimental_rerun()
 

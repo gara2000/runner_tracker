@@ -1,4 +1,5 @@
 {
 	"state":"main",
-	"races":[]
+	"races":[],
+	"next_race_id":0
 }

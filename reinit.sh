@@ -2,5 +2,6 @@
 set -e
 
 cat json_reinit.json > data.json
-cd images
+cd races_info
 rm -rf *
+echo "Information about races" >> README.txt
