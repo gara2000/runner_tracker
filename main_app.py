@@ -18,8 +18,11 @@ from utils import *
 #loading the data from the json file
 #######################################################################
 
-with open("data.json") as f:
-    data = json.load(f)
+try:
+    with open("data.json") as f:
+        data = json.load(f)
+except:
+    st.experimental_rerun()
 
 state = data["state"]
 #######################################################################
@@ -133,24 +136,27 @@ if state.startswith("runners_"):
 #######################################################################
 
 if state.startswith("leaderboard_"):
-    raceid = get_id(state, "leaderboard_")
+    try:
+        raceid = get_id(state, "leaderboard_")
 
-    race = data["races"][raceid]
-    runners = race["runners"]
+        race = data["races"][raceid]
+        runners = race["runners"]
 
-    #update runners' data
-    update_data(race)
+        #update runners' data
+        update_data(raceid)
 
-    #create the data frame
-    df = get_data_frame(race)
-    dt = get_time(race)
+        #create the data frame
+        df = get_data_frame(race)
+        dt = get_time(race)
 
 
-    st.header(dt)
-    st.write(df)
+        st.header(dt)
+        st.dataframe(df)
 
-    st.button("Back to viewing races", on_click=click_func, args=["view"])
+        st.button("Back to viewing races", on_click=click_func, args=["view"])
 
-    time.sleep(1)
-    st.experimental_rerun()
+        time.sleep(1)
+        st.experimental_rerun()
+    except:
+        st.experimental_rerun()
 

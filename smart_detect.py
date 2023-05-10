@@ -1,4 +1,5 @@
 from qreader import QReader
+import datetime
 import json
 import cv2
 import time
@@ -10,9 +11,9 @@ HEIGHT = 500
 
 def real_time_detect(path, race_id, ckpt_id) : 
 #    path1 = 0
-    path1 = "firas.MOV"
+#    path1 = "firas.MOV"
     i=0
-#    path1 = "iheb.MOV"
+    path1 = "iheb.MOV"
     cap = cv2.VideoCapture(path1)
     qreader = QReader()
     while True : 
@@ -22,11 +23,11 @@ def real_time_detect(path, race_id, ckpt_id) :
             if not ok :
                 break
             i+=1
-            if i%1==0:
+            if i%10==0:
                 print(i)
                 decoded_text = qreader.detect_and_decode(image=img,return_bboxes=True)
                 for ( (x1,y1,x2,y2),qr_data ) in  decoded_text :
-                    detected_timestamp = time.time()
+                    detected_timestamp = datetime.datetime.now().isoformat()
                     if qr_data == None :
                         continue
     #                if (qr_data in data['detected_ids']) :
@@ -62,4 +63,3 @@ if __name__ == '__main__' :
     with open(f"races_info/race_{args.race_id}/ckpt_{args.ckpt_id}.json", "w") as f:
         json.dump(data, f)
     real_time_detect(path, args.race_id, args.ckpt_id)
-    print(data)

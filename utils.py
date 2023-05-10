@@ -103,6 +103,15 @@ def add_runner(raceid, name, gender, up_file, state):
 #Leaderboard utilities
 #######################################################################
 
+def color(index, row):
+    if index==1:
+        return ["background-color: gold"]*len(row)
+    elif index==2:
+        return ["background-color: silver"]*len(row)
+    elif index==3:
+        return ["background-color: #CD7F32"]*len(row)
+
+
 def get_data_frame(race):
     runners = race["runners"]
     num_ckpt = race["num_ckpt"]
@@ -111,13 +120,14 @@ def get_data_frame(race):
     df.update({f"Checkpoint {i}":[runner[f"ckpt_{i}"] for runner in runners] for i in range(num_ckpt)})
     df.update({"Fina Time":[runner["time"] for runner in runners], "Verdict":[runner["verdict"] for runner in runners]})
 
-    # Sort the dictionary before making the data frame
-    #
-    #
-    #
-
-
     df = pd.DataFrame(df)
+    by_vec = ["Fina Time"]+[f"Checkpoint {ckpt}" for ckpt in range(num_ckpt)][::-1]+["Runner"]
+#    st.write(by_vec)
+    df = df.sort_values(by=by_vec)
+
+    df.insert(0, "Rank", range(1, len(runners)+1))
+    df.set_index("Rank", inplace=True)
+    df = df.style.apply(lambda x: color(x.name, x), axis=1)
 
     return df
 
@@ -137,16 +147,16 @@ def get_time(race):
 
     return time_diff_str
 
-def get_race_by_id(data, race_id):
-    for race in data["races"]:
+def get_race_idx_by_id(data, race_id):
+    for i, race in enumerate(data["races"]):
         if race["id"]==race_id:
-            return race
+            return i
 
-def update_data(race):
-    race_id = race["id"]
+def update_data(raceid):
 
     data = get_data()
-    race = get_race_by_id(data, race_id)
+    idx = get_race_idx_by_id(data, raceid)
+    race = data["races"][idx]
     num_ckpt = race["num_ckpt"]
     runners = race["runners"]
 
@@ -171,5 +181,6 @@ def update_data(race):
                     runners[int(i)]["next_ckpt"] = next_ckpt
                 except:
                     print("Undefined QR data!")
+                    st.error("Undefined QR data!")
                         
         set_data(data)
