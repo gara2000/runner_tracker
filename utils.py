@@ -137,10 +137,19 @@ def get_time(race):
 
     return time_diff_str
 
+def get_race_by_id(data, race_id):
+    for race in data["races"]:
+        if race["id"]==race_id:
+            return race
+
 def update_data(race):
     race_id = race["id"]
+
+    data = get_data()
+    race = get_race_by_id(data, race_id)
     num_ckpt = race["num_ckpt"]
     runners = race["runners"]
+
 
     for ckpt in range(num_ckpt):
         path = race["race_dir"]+f"/ckpt_{ckpt}.json"
@@ -152,12 +161,15 @@ def update_data(race):
                     next_ckpt = runner["next_ckpt"]
                     if next_ckpt==ckpt:
                         race_start = datetime.datetime.fromisoformat(race["timestamp"])
-                        now = datetime.datetime.now()
-                        time_diff = now - race_start
+                        target = datetime.datetime.fromisoformat(time)
+                        time_diff = target - race_start
 
                         runner[f"ckpt_{ckpt}"] = time_format(time_diff)
+                        next_ckpt+=1
                     elif runner[f"ckpt_{ckpt}"]=="DNF":
                         runner[f"ckpt_{ckpt}"]=="DNA"
+                    runners[int(i)]["next_ckpt"] = next_ckpt
                 except:
                     print("Undefined QR data!")
                         
+        set_data(data)
